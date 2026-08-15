@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOXED 🦊</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at top, #35205c, #171126 45%, #0d0a18);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .game {
+        width: 100%;
+        max-width: 850px;
+        min-height: 650px;
+        background: rgba(20, 16, 35, 0.95);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 25px 80px rgba(0,0,0,0.45);
+    }
+
+    .screen {
+        display: none;
+        animation: fade 0.4s ease;
+    }
+
+    .screen.active {
+        display: block;
+    }
+
+    @keyframes fade {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .logo {
+        text-align: center;
+        font-size: 64px;
+        font-weight: 900;
+        letter-spacing: 8px;
+        margin-top: 50px;
+    }
+
+    .fox {
+        font-size: 90px;
+        text-align: center;
+        margin: 15px;
+    }
+
+    .tagline {
+        text-align: center;
+        color: #c8bfdc;
+        font-size: 18px;
+        margin-bottom: 35px;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 30px;
+        margin-bottom: 25px;
+    }
+
+    h3 {
+        margin-bottom: 10px;
+    }
+
+    input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #51486a;
+        background: #171327;
+        color: white;
+        outline: none;
+        font-size: 16px;
+    }
+
+    input:focus {
+        border-color: #ff7b3d;
+    }
+
+    button {
+        border: none;
+        cursor: pointer;
+        padding: 14px 22px;
+        border-radius: 13px;
+        font-size: 16px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+    }
+
+    .primary {
+        width: 100%;
+        background: linear-gradient(135deg, #ff7b3d, #ff4d6d);
+        color: white;
+        margin-top: 18px;
+    }
+
+    .secondary {
+        background: #28213d;
+        color: white;
+        margin-top: 10px;
+    }
+
+    .danger {
+        background: #8f2540;
+        color: white;
+    }
+
+    .players-input {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .players-input button {
+        background: #ff7b3d;
+        color: white;
+    }
+
+    .player-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin: 20px 0;
+    }
+
+    .player-card {
+        background: #211b34;
+        padding: 14px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .remove {
+        background: transparent;
+        color: #ff718b;
+        padding: 5px 8px;
+    }
+
+    .counter {
+        text-align: center;
+        color: #a99fbf;
+        margin-bottom: 15px;
+    }
+
+    .pass-card {
+        text-align: center;
+        padding: 45px 20px;
+        background: #211b34;
+        border-radius: 20px;
+        margin-top: 20px;
+    }
+
+    .pass-name {
+        font-size: 32px;
+        font-weight: bold;
+        color: #ff8a52;
+        margin: 15px;
+    }
+
+    .secret-box {
+        margin: 25px auto;
+        max-width: 400px;
+        padding: 30px;
+        border-radius: 18px;
+        background: #11101d;
+        border: 1px dashed #625778;
+    }
+
+    .secret-label {
+        color: #a99fbf;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .secret-word {
+        font-size: 40px;
+        font-weight: 900;
+        color: #ff8a52;
+    }
+
+    .fox-warning {
+        color: #ff718b;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .clue-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .clue {
+        background: #211b34;
+        padding: 15px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .clue-name {
+        font-weight: bold;
+        color: #ff9b68;
+    }
+
+    .vote-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .vote-btn {
+        width: 100%;
+        background: #211b34;
+        color: white;
+        text-align: left;
+        border: 1px solid #3d3452;
+    }
+
+    .vote-btn:hover {
+        background: #322849;
+        border-color: #ff7b3d;
+    }
+
+    .result {
+        text-align: center;
+        padding: 35px 10px;
+    }
+
+    .result-emoji {
+        font-size: 85px;
+    }
+
+    .result-title {
+        font-size: 38px;
+        margin: 15px 0;
+    }
+
+    .result-title.win {
+        color: #70e000;
+    }
+
+    .result-title.lose {
+        color: #ff5c7a;
+    }
+
+    .revealed {
+        background: #211b34;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .small {
+        color: #aaa1ba;
+        font-size: 14px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @media (max-width: 600px) {
+        .game {
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .logo {
+            font-size: 45px;
+        }
+
+        .fox {
+            font-size: 70px;
+        }
+
+        .player-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <!-- HOME -->
+    <section id="home" class="screen active">
+        <div class="fox">🦊</div>
+        <div class="logo">FOXED</div>
+        <p class="tagline">Give a clue. Find the Fox.</p>
+
+        <button class="primary" onclick="showScreen('setup')">
+            PLAY GAME
+        </button>
+
+        <p class="small center" style="margin-top:20px;">
+            A secret-word deception game
+        </p>
+    </section>
+
+
+    <!-- SETUP -->
+    <section id="setup" class="screen">
+        <h2>👥 Add Players</h2>
+
+        <p class="counter">
+            Players: <span id="playerCount">0</span>/8
+        </p>
+
+        <div class="players-input">
+            <input
+                id="playerName"
+                type="text"
+                placeholder="Enter player name"
+                maxlength="18"
+                onkeydown="if(event.key==='Enter') addPlayer()"
+            >
+
+            <button onclick="addPlayer()">ADD</button>
+        </div>
+
+        <div id="playerList" class="player-list"></div>
+
+        <button id="startBtn" class="primary" onclick="startGame()" disabled>
+            START GAME 🦊
+        </button>
+
+        <button class="secondary" onclick="showScreen('home')">
+            ← Back
+        </button>
+    </section>
+
+
+    <!-- REVEAL -->
+    <section id="reveal" class="screen">
+        <h2>🔐 Secret Word</h2>
+
+        <div class="pass-card">
+            <p>Pass the device to:</p>
+
+            <div id="currentPlayer" class="pass-name">
+                Player
+            </div>
+
+            <p class="small">
+                Make sure nobody else is looking 👀
+            </p>
+
+            <button id="revealBtn" class="primary" onclick="revealWord()">
+                REVEAL MY WORD
+            </button>
+
+            <div id="secretBox" class="secret-box hidden">
+
+                <div id="normalWord">
+                    <div class="secret-label">
+                        YOUR SECRET WORD
+                    </div>
+
+                    <div id="secretWord" class="secret-word">
+                        MOON
+                    </div>
+                </div>
+
+                <div id="foxWord" class="hidden">
+                    <div class="fox-warning">
+                        🦊 YOU ARE THE FOX
+                    </div>
+
+                    <p class="small" style="margin-top:12px;">
+                        Your word is different. Don't get caught!
+                    </p>
+
+                    <div id="foxSecretWord"
+                         class="secret-word"
+                         style="margin-top:15px;">
+                        SUN
+                    </div>
+                </div>
+
+            </div>
+
+            <button
+                id="hideBtn"
+                class="primary hidden"
+                onclick="nextPlayer()">
+                HIDE & PASS →
+            </button>
+        </div>
+    </section>
+
+
+    <!-- CLUES -->
+    <section id="clues" class="screen">
+        <h2>💡 Clue Round</h2>
+
+        <p class="small center">
+            Give ONE word as your clue.
+        </p>
+
+        <div id="clueList" class="clue-list"></div>
+
+        <div id="clueInputArea">
+            <input
+                id="clueInput"
+                type="text"
+                placeholder="Enter your one-word clue"
+                maxlength="25"
+                style="margin-top:20px;"
+                onkeydown="if(event.key==='Enter') submitClue()"
+            >
+
+            <button class="primary" onclick="submitClue()">
+                SUBMIT CLUE
+            </button>
+        </div>
+
+        <button
+            id="goVoteBtn"
+            class="primary hidden"
+            onclick="startVoting()">
+            EVERYONE GAVE A CLUE → VOTE
+        </button>
+    </section>
+
+
+    <!-- VOTING -->
+    <section id="voting" class="screen">
+        <h2>🗳️ Find the Fox</h2>
+
+        <p class="small center">
+            Who do you think is the Fox?
+        </p>
+
+        <div id="voteList" class="vote-list"></div>
+    </section>
+
+
+    <!-- RESULT -->
+    <section id="result" class="screen">
+        <div class="result">
+
+            <div id="resultEmoji" class="result-emoji">
+                🦊
+            </div>
+
+            <div id="resultTitle" class="result-title">
+                THE FOX WAS...
+            </div>
+
+            <div class="revealed">
+                <p class="small">The Fox was</p>
+                <h2 id="foxName">Player</h2>
+
+                <p class="small">Normal word</p>
+                <h3 id="normalResult">MOON</h3>
+
+                <p class="small" style="margin-top:12px;">
+                    Fox word
+                </p>
+                <h3 id="foxResult">SUN</h3>
+            </div>
+
+            <p id="resultMessage" style="font-size:20px;"></p>
+
+            <button class="primary" onclick="newRound()">
+                PLAY AGAIN 🔄
+            </button>
+
+            <button class="secondary" onclick="resetGame()">
+                CHANGE PLAYERS
+            </button>
+
+        </div>
+    </section>
+
+</div>
+
+
+<script>
+
+const wordPairs = [
+    ["Moon", "Sun"],
+    ["Cat", "Tiger"],
+    ["Coffee", "Tea"],
+    ["Beach", "Pool"],
+    ["Pizza", "Burger"],
+    ["School", "College"],
+    ["Rain", "Snow"],
+    ["Dog", "Wolf"],
+    ["Car", "Bus"],
+    ["Apple", "Orange"],
+    ["Summer", "Winter"],
+    ["Doctor", "Nurse"],
+    ["Phone", "Laptop"],
+    ["Book", "Movie"],
+    ["Cake", "Ice Cream"],
+    ["River", "Ocean"],
+    ["Mountain", "Hill"],
+    ["Football", "Cricket"],
+    ["Rose", "Tulip"],
+    ["King", "Queen"],
+    ["Robot", "Alien"],
+    ["Fire", "Smoke"],
+    ["Lion", "Tiger"],
+    ["Train", "Metro"],
+    ["Chocolate", "Candy"],
+    ["School", "Library"],
+    ["Hospital", "Clinic"],
+    ["Forest", "Jungle"],
+    ["Star", "Planet"],
+    ["Camera", "Phone"]
+];
+
+let players = [];
+let foxIndex = 0;
+let normalWord = "";
+let foxWord = "";
+let currentReveal = 0;
+let currentClue = 0;
+let clues = [];
+let votes = {};
+
+function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+}
+
+
+function addPlayer() {
+
+    const input = document.getElementById("playerName");
+    const name = input.value.trim();
+
+    if (!name) {
+        alert("Please enter a player name.");
+        return;
+    }
+
+    if (players.length >= 8) {
+        alert("Maximum 8 players allowed.");
+        return;
+    }
+
+    if (players.some(p => p.toLowerCase() === name.toLowerCase())) {
+        alert("That player already exists.");
+        return;
+    }
+
+    players.push(name);
+
+    input.value = "";
+
+    updatePlayers();
+}
+
+
+function removePlayer(index) {
+    players.splice(index, 1);
+    updatePlayers();
+}
+
+
+function updatePlayers() {
+
+    const list = document.getElementById("playerList");
+
+    document.getElementById("playerCount").textContent = players.length;
+
+    list.innerHTML = "";
+
+    players.forEach((player, index) => {
+
+        const div = document.createElement("div");
+
+        div.className = "player-card";
+
+        div.innerHTML = `
+            <span>👤 ${escapeHTML(player)}</span>
+            <button class="remove" onclick="removePlayer(${index})">✕</button>
+        `;
+
+        list.appendChild(div);
+    });
+
+    document.getElementById("startBtn").disabled =
+        players.length < 3;
+}
+
+
+function startGame() {
+
+    if (players.length < 3) {
+        alert("You need at least 3 players.");
+        return;
+    }
+
+    const pair =
+        wordPairs[Math.floor(Math.random() * wordPairs.length)];
+
+    normalWord = pair[0];
+    foxWord = pair[1];
+
+    foxIndex =
+        Math.floor(Math.random() * players.length);
+
+    currentReveal = 0;
+
+    clues = [];
+
+    currentClue = 0;
+
+    votes = {};
+
+    prepareReveal();
+
+    showScreen("reveal");
+}
+
+
+function prepareReveal() {
+
+    document.getElementById("currentPlayer").textContent =
+        players[currentReveal];
+
+    document.getElementById("secretBox").classList.add("hidden");
+
+    document.getElementById("hideBtn").classList.add("hidden");
+
+    document.getElementById("revealBtn").classList.remove("hidden");
+}
+
+
+function revealWord() {
+
+    document.getElementById("secretBox")
+        .classList.remove("hidden");
+
+    document.getElementById("revealBtn")
+        .classList.add("hidden");
+
+    document.getElementById("hideBtn")
+        .classList.remove("hidden");
+
+    const isFox = currentReveal === foxIndex;
+
+    document.getElementById("normalWord")
+        .classList.toggle("hidden", isFox);
+
+    document.getElementById("foxWord")
+        .classList.toggle("hidden", !isFox);
+
+    document.getElementById("secretWord")
+        .textContent = normalWord;
+
+    document.getElementById("foxSecretWord")
+        .textContent = foxWord;
+}
+
+
+function nextPlayer() {
+
+    currentReveal++;
+
+    if (currentReveal >= players.length) {
+
+        prepareClues();
+
+        showScreen("clues");
+
+    } else {
+
+        prepareReveal();
+    }
+}
+
+
+function prepareClues() {
+
+    currentClue = 0;
+    clues = [];
+
+    document.getElementById("clueList").innerHTML = "";
+
+    document.getElementById("clueInputArea")
+        .classList.remove("hidden");
+
+    document.getElementById("goVoteBtn")
+        .classList.add("hidden");
+
+    document.getElementById("clueInput").value = "";
+
+    updateClueTitle();
+}
+
+
+function updateClueTitle() {
+
+    const input = document.getElementById("clueInput");
+
+    input.placeholder =
+        `${players[currentClue]}, enter your clue`;
+}
+
+
+function submitClue() {
+
+    const input = document.getElementById("clueInput");
+
+    const clue = input.value.trim();
+
+    if (!clue) {
+        alert("Enter a clue first.");
+        return;
+    }
+
+    clues.push({
+        player: players[currentClue],
+        clue: clue
+    });
+
+    input.value = "";
+
+    renderClues();
+
+    currentClue++;
+
+    if (currentClue >= players.length) {
+
+        document.getElementById("clueInputArea")
+            .classList.add("hidden");
+
+        document.getElementById("goVoteBtn")
+            .classList.remove("hidden");
+
+    } else {
+
+        updateClueTitle();
+    }
+}
+
+
+function renderClues() {
+
+    const list = document.getElementById("clueList");
+
+    list.innerHTML = "";
+
+    clues.forEach(item => {
+
+        const div = document.createElement("div");
+
+        div.className = "clue";
+
+        div.innerHTML = `
+            <span class="clue-name">
+                ${escapeHTML(item.player)}
+            </span>
+
+            <span>
+                ${escapeHTML(item.clue)}
+            </span>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+
+function startVoting() {
+
+    const list = document.getElementById("voteList");
+
+    list.innerHTML = "";
+
+    players.forEach((player, index) => {
+
+        const button = document.createElement("button");
+
+        button.className = "vote-btn";
+
+        button.innerHTML =
+            `🗳️ Vote for <strong>${escapeHTML(player)}</strong>`;
+
+        button.onclick = () => castVote(index);
+
+        list.appendChild(button);
+    });
+
+    showScreen("voting");
+}
+
+
+function castVote(index) {
+
+    const selectedPlayer = players[index];
+
+    const confirmed =
+        confirm(`Vote for ${selectedPlayer}?`);
+
+    if (!confirmed) return;
+
+    const wasFox = index === foxIndex;
+
+    showResult(wasFox);
+}
+
+
+function showResult(caughtFox) {
+
+    document.getElementById("foxName")
+        .textContent = players[foxIndex];
+
+    document.getElementById("normalResult")
+        .textContent = normalWord;
+
+    document.getElementById("foxResult")
+        .textContent = foxWord;
+
+    const title =
+        document.getElementById("resultTitle");
+
+    const message =
+        document.getElementById("resultMessage");
+
+    const emoji =
+        document.getElementById("resultEmoji");
+
+    if (caughtFox) {
+
+        title.textContent = "FOX CAUGHT! 🎉";
+
+        title.className = "result-title win";
+
+        emoji.textContent = "🎉🦊";
+
+        message.textContent =
+            "Amazing! The players found the Fox!";
+
+    } else {
+
+        title.textContent = "FOX ESCAPED! 😈";
+
+        title.className = "result-title lose";
+
+        emoji.textContent = "😈🦊";
+
+        message.textContent =
+            "The Fox fooled everyone!";
+    }
+
+    showScreen("result");
+}
+
+
+function newRound() {
+
+    startGame();
+}
+
+
+function resetGame() {
+
+    players = [];
+
+    foxIndex = 0;
+
+    normalWord = "";
+
+    foxWord = "";
+
+    currentReveal = 0;
+
+    currentClue = 0;
+
+    clues = [];
+
+    updatePlayers();
+
+    showScreen("setup");
+}
+
+
+function escapeHTML(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+</script>
+
+</body>
+</html>
