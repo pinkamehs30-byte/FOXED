@@ -624,13 +624,13 @@ function updatePlayers() {
     });
 
     document.getElementById("startBtn").disabled =
-        players.length < 3;
+        players.length < 2 ;
 }
 
 
 function startGame() {
 
-    if (players.length < 3) {
+    if (players.length < 2) {
         alert("You need at least 3 players.");
         return;
     }
